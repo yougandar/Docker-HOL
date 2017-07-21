@@ -32,13 +32,13 @@
                 "description": "Address Prefix for Jenkins Subnet"
             }
         },
-        "dockerswarmSubnet": {
+        "dockerSubnetName": {
             "type": "string",
             "metadata": {
                 "description": "Name of dockerswarm Subnet"
             }
         },
-        "dockerswarmSubnetPrefix": {
+        "dockerSubnetPrefix": {
             "type": "string",
             "metadata": {
                 "description": "The dockerswarm Subnet prefix"
@@ -72,9 +72,9 @@
                         }
                     },
                     {
-                        "name": "[parameters('dockerswarmSubnet')]",
+                        "name": "[parameters('dockerSubnetName')]",
                         "properties": {
-                            "addressPrefix": "[parameters('dockerswarmSubnetPrefix')]"
+                            "addressPrefix": "[parameters('dockerSubnetPrefix')]"
                         }
                     }
                 ]
