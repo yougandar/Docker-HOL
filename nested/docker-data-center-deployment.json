@@ -71,10 +71,10 @@
         "extlbname": "[concat(variables('lbPublicIpDnsName'), '.', variables('storageLocation'), '.cloudapp.azure.com')]",
         "groupName": "[resourceGroup().name]",
         "imageReference": {
-            "offer": "[parameters('dockerVMDetails').imageOffer]",
-            "publisher": "[parameters('dockerVMDetails').imagePublisher]",
-            "sku": "[parameters('dockerVMDetails').imageSku]",
-            "version": "[parameters('dockerVMDetails').imageVersion]"
+            "offer": "[parameters('dockerVMDetails').dockerImageOffer]",
+            "publisher": "[parameters('dockerVMDetails').dockerImagePublisher]",
+            "sku": "[parameters('dockerVMDetails').dockerImageSku]",
+            "version": "[parameters('dockerVMDetails').dockerImageVersion]"
         },
         "lbBackendAddressPoolID": "[concat(variables('lbID'),'/backendAddressPools/default')]",
         "lbDTRFrontEndIPConfigID": "[concat(variables('lbSSHID'),'/frontendIPConfigurations/dtrlbfrontend')]",
