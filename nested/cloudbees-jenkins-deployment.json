@@ -106,6 +106,9 @@
                 "description": "Subnet Name"
             }
         },
+          "virtualNetworkName":{
+            "type": "string"
+          },
         "scriptUrl": {
             "type": "string"
         },
@@ -358,7 +361,7 @@
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('jenkinsIP',copyIndex()))]"
                             },
                             "subnet": {
-                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks','MyVnet'), '/subnets/',parameters('subnetName'))]"
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName')), '/subnets/',parameters('subnetName'))]"
                             }
                         }
                     }
@@ -499,7 +502,7 @@
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPName'))]"
                             },
                             "subnet": {
-                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks','MyVnet'), '/subnets/',parameters('subnetName'))]"
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName')), '/subnets/',parameters('subnetName'))]"
                             }
                         }
                     }
