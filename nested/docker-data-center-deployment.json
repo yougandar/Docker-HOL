@@ -49,6 +49,9 @@
         },
         "storageAccountType": {
             "type": "string"
+        },
+        "location":{
+            "type": "string"
         }
     },
     "variables": {
@@ -100,7 +103,7 @@
         "sshKeyPath": "[concat('/home/', variables('adminUsername'), '/.ssh/authorized_keys')]",
         "sshRSAPublicKey": "[parameters('sshPublicKey')]",
         "storageAccountSuffix": "docker",
-        "storageLocation": "[resourceGroup().location]",
+        "storageLocation": "[parameters('location')]",
         "swarmInfoStorageAccount": "[concat(variables('uniqueStringArray')[0], variables('storageAccountSuffix'))]",
         "swarmLogsStorageAccount": "[concat(uniqueString(concat(resourceGroup().id, variables('storageAccountSuffix'))), 'logs')]",
         "ucpLbPublicIpDnsName": "[concat('ucplb-', uniqueString(resourceGroup().name))]",
