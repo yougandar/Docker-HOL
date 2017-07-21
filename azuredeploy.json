@@ -1,0 +1,410 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "westus",
+            "allowedValues": [
+                "eastus",
+                "northcentralus",
+                "northeurope",
+                "southcentralus",
+                "westeurope",
+                "westus",
+                "centralus",
+                "eastus2",
+                "westus2"
+            ],
+            "metadata": {
+                "description": "The location where the solution will be deployed."
+            }
+        },
+        "jenkinsDnsNameForPublicIP": {
+            "type": "string",
+            "defaultValue": "ocdns",
+            "metadata": {
+                "description": "Unique DNS Name for the Public IP used to access the Jenkins Operations Center Web Front-End."
+            }
+        },
+        "jenkinsUsername": {
+            "type": "string",
+            "defaultValue": "jenkinsuser",
+            "metadata": {
+                "description": "Admin User name for SSH Cloudbees Jenkins related Virtual Machines."
+            }
+        },
+        "jenkinsPassword": {
+            "type": "securestring",
+            "defaultValue": "Password@1234",
+            "metadata": {
+                "description": "Admin Password for SSH Cloudbees Jenkins related Virtual Machines."
+            }
+        },
+        "jenkinsAdminPassword": {
+            "type": "securestring",
+             "defaultValue": "Password@1234",
+            "metadata": {
+                "description": "Password for the 'admin' user on jenkins initial security setup."
+            }
+        },
+        "size": {
+            "type": "string",
+            "defaultValue": "Project",
+            "metadata": {
+                "description": "Size of your CloudBees Jenkins Platform deployment."
+            }
+        },
+        "baseUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "Base URL for Artifacts",
+                "artifactsBaseUrl": ""
+            },
+            "defaultValue": "https://raw.githubusercontent.com/sysgain/Docker-HOL/master"
+        },
+        "ddcLicenseKey": {
+            "metadata": {
+                "description": "Upload your Docker Datacenter License Key"
+            },
+            "type": "SecureString"
+        },
+        "ddcPassword": {
+            "maxLength": 40,
+            "metadata": {
+                "description": "Please enter the password you want to use for Docker Datacenter."
+            },
+            "defaultValue": "Password@1234",
+            "minLength": 8,
+            "type": "SecureString"
+        },
+        "ddcUsername": {
+            "defaultValue": "ddcadmin",
+            "metadata": {
+                "description": "Please enter the username you want to use for Docker Datacenter."
+            },
+            "type": "String"
+        },
+        "adServicePrincipalAppID": {
+            "metadata": {
+                "description": "AD ServicePrincipal App ID"
+            },
+            "type": "string",
+            "defaultValue": "13c6bae4-a13a-4d75-9bd8-451d733be85f"
+        },
+        "adServicePrincipalAppSecret": {
+            "metadata": {
+                "description": "AD ServicePrincipal App Secret"
+            },
+            "defaultValue": "+u9VpFP/ZeqpBKuKoLcAUV8vQmB9xwOhi+RZT7Am/Ys=",
+            "type": "securestring"
+        },
+        "managerCount": {
+            "defaultValue": 3,
+            "type": "int"
+        },
+        "managerVMSize": {
+            "defaultValue": "Standard_DS3",
+            "metadata": {
+                "description": "The size of the created Manager machines"
+            },
+            "type": "string"
+        },
+        "sshPublicKey": {
+            "metadata": {
+                "description": "The SSH public key used to authenticate with the created swarm. Usually available in $HOME/.ssh/id_rsa.pub file"
+            },
+            "defaultValue": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCb8UFXuRg60oBBYkPO45cTlfLxbf32t9OlZ9L5EQaSqaFoSvDTyDJzuMuKe8XDGqu/I5fBm+5YWsX7efKI4BHQk7WQbDjdzueobooGHDl9nPFhhsLrtZBWIJ4t5SQfoTMI3HGnhVpUseyfOF9bqbFQGGZk\r\nA+zNPzM2bJOr1pU01A4cer+aD7qrrSfzd3hUp6px7Fy02ui7FxX2oq8SUrCvKAavvOv/XeLsn1d/MIJRqxOENZURwq3yCsWivUJ68OPNS0uGFd0fH0DgTUXTLuLYr5ilSry88J3RFoKSW1trMoGU6y/H31hPFnAt7rjzMRdtdL4rV2+efPsDx07WhoUD sri\r\nkala@cc-dcf9-a15245f3-4016727739-xgtkm",
+            "type": "string"
+        },
+        "swarmName": {
+            "defaultValue": "dockerswarm",
+            "metadata": {
+                "description": "Define how the swarm resources should be named."
+            },
+            "type": "string"
+        },
+        "workerCount": {
+            "defaultValue": 2,
+            "metadata": {
+                "description": "Number of Worker nodes"
+            },
+            "type": "int"
+        },
+        "workerVMSize": {
+            "defaultValue": "Standard_D2_v2",
+            "metadata": {
+                "description": "The size of the created machines"
+            },
+            "type": "string"
+        }
+    },
+    "variables": {
+        "deploymentApiVersion": "2015-01-01",
+        "networkApiVersion": "2015-06-15",
+        "storageApiVersion": "2015-06-15",
+        "storageAccountNameCloudbees": "[concat('cbstor',variables('uniqueString'))]",
+        "storageAccountType": "Standard_LRS",
+        "virtualNetworkName": "MyVnet",
+        "virtualNetworkAddressPrefix": "10.0.0.0/16",
+        "jenkinsSubnetName": "jenkins-subnet",
+        "jenkinsSubnetPrefix": "10.0.0.0/24",
+        "JenkinsdnsNameForPublicIP": "jenkins-0-",
+        "dockerSubnetName": "dockerswarm-subnet",
+        "dockerSubnetPrefix": "10.0.1.0/24",
+        "vmSize": "Standard_A2",
+        "uniqueString": "[uniquestring(resourceGroup().id)]",
+        "vnetDeploymentURI": "[concat(parameters('baseUrl'),'/nested/newvnet.json')]",
+        "cloubeesDeploymnetURI": "[concat(parameters('baseUrl'),'/nested/cloudbees-jenkins-deployment.json')]",
+        "dockerDataCenterDeploymentURI": "[concat(parameters('baseUrl'),'/nested/docker-data-center-deployment.json')]",
+        "scriptUrl":"[concat(parameters('baseUrl'),'/scripts')]",
+        "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+        "cloudbeesLocation": "[parameters('location')]",
+        "jenkinsPublicIPName": "jenkinsPublicIP",
+        "jenkinsPublicIPNewOrExisting": "new",
+        "jenkinsDnsNameForPublicIP": "[concat(parameters('jenkinsDnsNameForPublicIP'),variables('uniqueString'))]",
+        "jenkinsAuthenticationType": "password",
+        "jenkinssshPublicKey": "",
+        "dockerTags": {
+            "type": "object",
+            "provider": "8CF0E79C-DF97-4992-9B59-602DB544D354"
+        },
+        "cloudbeesTags": {
+            "type": "object",
+            "provider": "9F392E29-83D7-4569-AE61-608E2708A010"
+        },
+        "quickstartTags": {
+            "type": "object",
+            "name": "cloudbeesjenkins-dockerdatacenter"
+        },
+        "dockerVMDetails": {
+            "dockerImageOffer": "docker-ee",
+            "dockerImagePublisher": "docker",
+            "dockerImageSku": "docker-ee",
+            "dockerImageVersion": "1.0.2"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "[variables('deploymentApiVersion')]",
+            "name": "virtualNetworkDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('vnetDeploymentURI')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[variables('virtualNetworkName')]"
+                    },
+                    "virtualNetworkAddressPrefix": {
+                        "value": "[variables('virtualNetworkAddressPrefix')]"
+                    },
+                    "jenkinsSubnetName": {
+                        "value": "[variables('jenkinsSubnetName')]"
+                    },
+                    "jenkinsSubnetPrefix": {
+                        "value": "[variables('jenkinsSubnetPrefix')]"
+                    },
+                    "dockerSubnetName": {
+                        "value": "[variables('dockerSubnetName')]"
+                    },
+                    "dockerSubnetPrefix": {
+                        "value": "[variables('dockerSubnetPrefix')]"
+                    },
+                    "apiVersion": {
+                        "value": "[variables('networkApiVersion')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "[variables('deploymentApiVersion')]",
+            "name": "dockerDatacenterDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "['Microsoft.Resources/deployments/virtualNetworkDeployment']"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('dockerDataCenterDeploymentURI')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "ddcLicenseKey": {
+                        "value": "[parameters('ddcLicenseKey')]"
+                    },
+                    "ddcPassword": {
+                        "value": "[parameters('ddcPassword')]"
+                    },
+                    "ddcUsername": {
+                        "value": "[parameters('ddcUsername')]"
+                    },
+                    "adServicePrincipalAppID": {
+                        "value": "[parameters('adServicePrincipalAppID')]"
+                    },
+                    "adServicePrincipalAppSecret": {
+                        "value": "[parameters('adServicePrincipalAppSecret')]"
+                    },
+                    "managerCount": {
+                        "value": "[parameters('managerCount')]"
+                    },
+                    "managerVMSize": {
+                        "value": "[parameters('managerVMSize')]"
+                    },
+                    "sshPublicKey": {
+                        "value": "[parameters('sshPublicKey')]"
+                    },
+                    "swarmName": {
+                        "value": "[parameters('swarmName')]"
+                    },
+                    "workerCount": {
+                        "value": "[parameters('workerCount')]"
+                    },
+                    "workerVMSize": {
+                        "value": "[parameters('workerVMSize')]"
+                    },
+                    "vnetID":{
+                        "value": "[variables('vnetID')]"
+                    },
+                    "dockerSubnetName": {
+                        "value": "[variables('dockerSubnetName')]"
+                    },
+                    "dockerVMDetails": {
+                        "value": "[variables('dockerVMDetails')]"
+                    },
+                    "storageApiVersion": {
+                        "value": "[variables('storageApiVersion')]"
+                    },
+                    "storageAccountType": {
+                        "value": "[variables('storageAccountType')]"
+                    },
+                    "location":{
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "[variables('deploymentApiVersion')]",
+            "name": "cloudbeesDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "['Microsoft.Resources/deployments/virtualNetworkDeployment']"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('cloubeesDeploymnetURI')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "baseUrl": {
+                        "value": "[parameters('baseUrl')]"
+                    },
+                    "location": {
+                        "value": "[variables('cloudbeesLocation')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[variables('storageAccountNameCloudbees')]"
+                    },
+                    "storageAccountType": {
+                        "value": "[variables('storageAccountType')]"
+                    },
+                    "publicIPNewOrExisting": {
+                        "value": "[variables('jenkinsPublicIPNewOrExisting')]"
+                    },
+                    "publicIPName": {
+                        "value": "[variables('jenkinsPublicIPName')]"
+                    },
+                    "dnsNameForPublicIP": {
+                        "value": "[variables('jenkinsDnsNameForPublicIP')]"
+                    },
+                    "authenticationType": {
+                        "value": "[variables('jenkinsAuthenticationType')]"
+                    },
+                    "sshPublicKey": {
+                        "value": "[variables('jenkinssshPublicKey')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('jenkinsUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('jenkinsPassword')]"
+                    },
+                    "jenkinsAdminPassword": {
+                        "value": "[parameters('jenkinsAdminPassword')]"
+                    },
+                    "vmSize": {
+                        "value": "[variables('vmSize')]"
+                    },
+                    "size": {
+                        "value": "[parameters('size')]"
+                    },
+                    "subnetName": {
+                        "value": "[variables('jenkinsSubnetName')]"
+                    },
+                    "virtualNetworkName":{
+                        "value": "[variables('virtualNetworkName')]"
+                    },
+                    "scriptUrl":{
+                        "value":"[variables('scriptUrl')]"
+                    },
+                    "dockerTags": {
+                        "value": "[variables('dockerTags')]"
+                    },
+                    "cloudbeesTags": {
+                        "value": "[variables('cloudbeesTags')]"
+                    },
+                    "quickstartTags": {
+                        "value": "[variables('quickstartTags')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "Cloudbees Operations Center URL": {
+            "type": "string",
+            "value": "[concat('http://',reference('cloudbeesDeployment').outputs.operationsCenter.value)]"
+        },
+        "Jenkins Portal Username": {
+            "type": "string",
+            "value": "[reference('cloudbeesDeployment').outputs.jenkinsApplicationUsername.value]"
+        },
+        "Jenkins Portal Password": {
+            "type": "string",
+            "value": "[reference('cloudbeesDeployment').outputs.jenkinsApplicationPassword.value]"
+        },
+        "DTRLoginURL": {
+            "type": "string",
+            "value": "[reference('dockerDatacenterDeployment').outputs.DTRLoginURL.value]"
+        },
+        "DefaultDNSTarget": {
+            "type": "string",
+            "value": "[reference('dockerDatacenterDeployment').outputs.DefaultDNSTarget.value]"
+        },
+        "SSHTargets": {
+            "type": "string",
+            "value": "[reference('dockerDatacenterDeployment').outputs.SSHTargets.value]"
+        },
+        "UCPLoginURL": {
+            "type": "string",
+            "value": "[reference('dockerDatacenterDeployment').outputs.UCPLoginURL.value]"
+        },
+        "UCPLoginUsername":{
+            "type": "string",
+            "value": "[parameters('ddcUsername')]"
+        },
+        "UCPLoginPassword":{
+            "type": "string",
+            "value": "[parameters('ddcPassword')]"
+        }
+    }
+}
