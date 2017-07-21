@@ -2,13 +2,13 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "templateBaseUrl": {
+        "baseUrl": {
             "type": "string",
             "metadata": {
                 "description": "Base URL for Marketplace",
                 "artifactsBaseUrl": ""
             },
-            "defaultValue": "https://gallery.azure.com/artifact/20151001/cloudbees.jenkins-platformjenkins-platform.1.0.10/Artifacts"
+            "defaultValue": ""
         },
         "location": {
             "type": "string",
@@ -105,6 +105,9 @@
             "metadata": {
                 "description": "Subnet Name"
             }
+        },
+        "scriptUrl": {
+            "type": "string"
         },
         "dockerTags": {
             "type": "object"
@@ -441,9 +444,9 @@
                         "typeHandlerVersion": "1.4",
                         "settings": {
                             "fileUris": [
-                                "[concat(parameters('templateBaseUrl'), '/setup-master.sh')]"
+                                "[concat(parameters('scriptUrl'), '/setup-master.sh')]"
                             ],
-                            "commandToExecute": "[concat('bash setup-master.sh ', copyIndex(), ' ', parameters('size'), ' ', variables('FQdns'), ' ', parameters('templateBaseUrl'), ' ', variables('subscription'))]"
+                            "commandToExecute": "[concat('bash setup-master.sh ', copyIndex(), ' ', parameters('size'), ' ', variables('FQdns'), ' ', parameters('scriptUrl'), ' ', variables('subscription'))]"
                         }
                     }
                 }
@@ -578,9 +581,9 @@
                         "typeHandlerVersion": "1.4",
                         "settings": {
                             "fileUris": [
-                                "[concat(parameters('templateBaseUrl'), '/setup-operations-center.sh')]"
+                                "[concat(parameters('scriptUrl'), '/setup-operations-center.sh')]"
                             ],
-                            "commandToExecute": "[concat('bash setup-operations-center.sh ', variables('mastersCount'), ' ', variables('FQdns'), ' ', base64(parameters('jenkinsAdminPassword')), ' ', parameters('templateBaseUrl'), ' ', variables('subscription'), ' ', parameters('size'))]"
+                            "commandToExecute": "[concat('bash setup-operations-center.sh ', variables('mastersCount'), ' ', variables('FQdns'), ' ', base64(parameters('jenkinsAdminPassword')), ' ', parameters('scriptUrl'), ' ', variables('subscription'), ' ', parameters('size'))]"
                         }
                     }
                 }
