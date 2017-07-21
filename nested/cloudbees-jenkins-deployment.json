@@ -148,8 +148,8 @@
             "vmImageSku": "jenkins-operations-center-pro"
         },
         "clusterSpec": "[variables(concat('clusterSpec', parameters('size')))]",
-        "storageTemplateLink": "[concat(parameters('templateBaseUrl'), '/newStorageAccount.json')]",
-        "publicIPTemplateLink": "[concat(parameters('templateBaseUrl'), '/', parameters('publicIPNewOrExisting'), 'PublicIP.json')]",
+        "storageTemplateLink": "[concat(parameters('baseUrl'), '/newStorageAccount.json')]",
+        "publicIPTemplateLink": "[concat(parameters('baseUrl'), '/', parameters('publicIPNewOrExisting'), 'PublicIP.json')]",
         "dns": "[parameters('dnsNameForPublicIP')]",
         "FQdns": "[concat(variables('dns'), '.', variables('location'), '.cloudapp.azure.com')]",
         "mastersCount": "[variables('clusterSpec').numberOfMasters]",
