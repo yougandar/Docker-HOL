@@ -35,7 +35,7 @@
         "workerVMSize": {
             "type": "string"
         },
-        "virtualNetworkName": {
+        "vnetID": {
             "type": "string"
         },
         "dockerSubnetName": {
@@ -115,8 +115,7 @@
         "vhdContainerName": "dockervhd",
         "vmssManagersName": "swarm-manager-vmss",
         "vmssName": "swarm-worker-vmss",
-        "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-        "dockerSubnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('dockerSubnetName'))]",
+        "dockerSubnetRef": "[concat(parameters('vnetID'),'/subnets/', parameters('dockerSubnetName'))]",
         "workerCount": "[parameters('workerCount')]",
         "workerVMNamePrefix": "swarm-worker",
         "workerVMSize": "[parameters('workerVMSize')]"
@@ -161,7 +160,7 @@
                 "publisher": "[parameters('dockerVMDetails').dockerImagePublisher]"
             },
             "dependsOn": [
-                "[variables('vnetID')]",
+                "[parameters('vnetID')]",
                 "[variables('lbSSHID')]",
                 "storageLoop"
             ],
@@ -257,7 +256,7 @@
                 "publisher": "[parameters('dockerVMDetails').dockerImagePublisher]"
             },
             "dependsOn": [
-                "[variables('vnetID')]",
+                "[parameters('vnetID')]",
                 "[variables('lbID')]",
                 "storageLoop"
             ],
