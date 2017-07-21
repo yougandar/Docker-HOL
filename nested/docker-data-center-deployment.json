@@ -361,7 +361,7 @@
             "dependsOn": [
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('lbPublicIPAddressName'))]"
             ],
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "name": "[variables('lbName')]",
             "properties": {
                 "backendAddressPools": [
@@ -418,7 +418,7 @@
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('lbSSHPublicIPAddressName'))]",
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('lbDTRPublicIPAddressName'))]"
             ],
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "name": "[variables('lbSSHName')]",
             "properties": {
                 "backendAddressPools": [
