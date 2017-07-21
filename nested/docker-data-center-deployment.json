@@ -156,9 +156,9 @@
             "location": "[variables('storageLocation')]",
             "name": "[variables('vmssManagersName')]",
             "plan": {
-                "name": "[parameters('dockerVMDetails').imageOffer]",
-                "product": "[parameters('dockerVMDetails').imageOffer]",
-                "publisher": "[parameters('dockerVMDetails').imagePublisher]"
+                "name": "[parameters('dockerVMDetails').dockerImageSku]",
+                "product": "[parameters('dockerVMDetails').dockerImageOffer]",
+                "publisher": "[parameters('dockerVMDetails').dockerImagePublisher]"
             },
             "dependsOn": [
                 "[variables('vnetID')]",
@@ -252,9 +252,9 @@
             "location": "[variables('storageLocation')]",
             "name": "[variables('vmssName')]",
             "plan": {
-                "name": "[parameters('dockerVMDetails').imageOffer]",
-                "product": "[parameters('dockerVMDetails').imageOffer]",
-                "publisher": "[parameters('dockerVMDetails').imagePublisher]"
+                "name": "[parameters('dockerVMDetails').dockerImageSku]",
+                "product": "[parameters('dockerVMDetails').dockerImageOffer]",
+                "publisher": "[parameters('dockerVMDetails').dockerImagePublisher]"
             },
             "dependsOn": [
                 "[variables('vnetID')]",
