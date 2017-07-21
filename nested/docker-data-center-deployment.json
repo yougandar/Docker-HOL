@@ -160,7 +160,6 @@
                 "publisher": "[parameters('dockerVMDetails').dockerImagePublisher]"
             },
             "dependsOn": [
-                "[parameters('vnetID')]",
                 "[variables('lbSSHID')]",
                 "storageLoop"
             ],
@@ -256,7 +255,6 @@
                 "publisher": "[parameters('dockerVMDetails').dockerImagePublisher]"
             },
             "dependsOn": [
-                "[parameters('vnetID')]",
                 "[variables('lbID')]",
                 "storageLoop"
             ],
