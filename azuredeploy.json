@@ -90,7 +90,7 @@
                 "description": "AD ServicePrincipal App ID"
             },
             "type": "string",
-            "defaultValue": "13c6bae4-a13a-4d75-9bd8-451d733be85f"
+            "defaultValue": "d4962dd2-e97e-4f3e-aa00-45e202305782"
         },
         "adServicePrincipalAppSecret": {
             "metadata": {
