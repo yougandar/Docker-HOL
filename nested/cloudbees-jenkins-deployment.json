@@ -598,6 +598,10 @@
             "value": "[variables('FQdns')]",
             "type": "string"
         },
+        "jenkinsfqdn":{
+            "type": "string",
+            "value": "[concat('jenkins-0-',variables('dns'))]"
+        },
         "jenkinsApplicationUsername": {
             "value": "Admin",
             "type": "string"
