@@ -600,7 +600,7 @@
         },
         "jenkinsfqdn":{
             "type": "string",
-            "value": "[concat('jenkins-0-',variables('dns'))]"
+            "value": "[concat('jenkins-0-',variables('dns'),'.', variables('location'), '.cloudapp.azure.com')]"
         },
         "jenkinsApplicationUsername": {
             "value": "Admin",
